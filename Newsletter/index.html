@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - AI Newsletter Generator{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-magic"></i> Generate Newsletter</h4>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Click the button below to generate a new AI newsletter with the top 10 Computer Science, AI, and Software Engineering news articles.</p>
+                <button id="generateBtn" class="btn btn-primary btn-lg">
+                    <i class="fas fa-sync-alt"></i> Generate Newsletter
+                </button>
+                <div id="loadingSpinner" class="mt-3" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <span class="ms-2">Generating newsletter... This may take a few minutes.</span>
+                </div>
+                <div id="resultMessage" class="mt-3"></div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h4><i class="fas fa-history"></i> Recent Newsletters</h4>
+            </div>
+            <div class="card-body">
+                {% if newsletters %}
+                    {% for newsletter in newsletters %}
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title">Newsletter #{{ newsletter.id }}</h6>
+                                    <small class="text-muted">{{ newsletter.generated_at }}</small>
+                                </div>
+                                <div>
+                                    <a href="/newsletter/{{ loop.index0 }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                    <a href="/download/{{ loop.index0 }}" class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-download"></i> Download
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No newsletters generated yet. Click "Generate Newsletter" to create your first one!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="status-card">
+            <h5><i class="fas fa-chart-line"></i> System Status</h5>
+            <div id="statusContent">
+                <p><strong>Total Newsletters:</strong> <span id="totalNewsletters">{{ newsletters|length }}</span></p>
+                <p><strong>Subscribers:</strong> <span id="totalSubscribers">0</span></p>
+                <p><strong>Last Generated:</strong> <span id="lastGenerated">
+                    {% if newsletters %}{{ newsletters[-1].generated_at }}{% else %}Never{% endif %}
+                </span></p>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> How It Works</h5>
+            </div>
+            <div class="card-body">
+                <ol class="small">
+                    <li>Scrapes multiple tech news sources</li>
+                    <li>Analyzes articles for AI/CS relevance</li>
+                    <li>Ranks articles by importance</li>
+                    <li>Generates professional newsletter</li>
+                    <li>Can be scheduled for automation</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5><i class="fas fa-cog"></i> Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <a href="/subscribers" class="btn btn-outline-primary btn-sm w-100 mb-2">
+                    <i class="fas fa-users"></i> Manage Subscribers
+                </a>
+                <a href="/schedule" class="btn btn-outline-secondary btn-sm w-100">
+                    <i class="fas fa-clock"></i> Set Schedule
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    $('#generateBtn').click(function() {
+        const btn = $(this);
+        const spinner = $('#loadingSpinner');
+        const result = $('#resultMessage');
+        
+        // Disable button and show spinner
+        btn.prop('disabled', true);
+        spinner.show();
+        result.html('');
+        
+        // Make AJAX request
+        $.ajax({
+            url: '/generate',
+            method: 'POST',
+            success: function(data) {
+                if (data.success) {
+                    result.html(`
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i> ${data.message}
+                            <a href="/newsletter/${data.newsletter.id}" class="btn btn-sm btn-success ms-2">
+                                View Newsletter
+                            </a>
+                        </div>
+                    `);
+                    // Reload page to show new newsletter
+                    setTimeout(() => location.reload(), 2000);
+                } else {
+                    result.html(`
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle"></i> ${data.message}
+                        </div>
+                    `);
+                }
+            },
+            error: function(xhr) {
+                const response = xhr.responseJSON || {};
+                result.html(`
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle"></i> ${response.message || 'Error generating newsletter'}
+                    </div>
+                `);
+            },
+            complete: function() {
+                btn.prop('disabled', false);
+                spinner.hide();
+            }
+        });
+    });
+    
+    // Update status periodically
+    function updateStatus() {
+        $.get('/api/status', function(data) {
+            $('#totalNewsletters').text(data.total_newsletters);
+            $('#totalSubscribers').text(data.subscribers);
+            $('#lastGenerated').text(data.last_generated || 'Never');
+        });
+    }
+    
+    updateStatus();
+    setInterval(updateStatus, 30000); // Update every 30 seconds
+});
+</script>
+{% endblock %} 

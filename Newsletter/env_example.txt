@@ -1,0 +1,21 @@
+# OpenAI API Configuration
+OPENAI_API_KEY=your_openai_api_key_here
+
+# Reddit API Configuration (Optional)
+REDDIT_CLIENT_ID=your_reddit_client_id_here
+REDDIT_CLIENT_SECRET=your_reddit_client_secret_here
+
+# Email Configuration (Optional)
+EMAIL_ADDRESS=your_email@gmail.com
+EMAIL_PASSWORD=your_app_password_here
+SMTP_SERVER=smtp.gmail.com
+SMTP_PORT=587
+
+# Flask Configuration
+FLASK_SECRET_KEY=your_secret_key_here
+
+# Twitter API Configuration (Optional)
+TWITTER_API_KEY=your_twitter_api_key_here
+TWITTER_API_SECRET=your_twitter_api_secret_here
+TWITTER_ACCESS_TOKEN=your_twitter_access_token_here
+TWITTER_ACCESS_TOKEN_SECRET=your_twitter_access_token_secret_here 

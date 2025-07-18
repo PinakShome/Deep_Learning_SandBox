@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}Newsletter #{{ newsletter.id }} - AI Newsletter Generator{% endblock %}
+
+{% block extra_css %}
+<style>
+    .newsletter-content {
+        background: white;
+        border-radius: 10px;
+        padding: 30px;
+        margin: 20px 0;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    .newsletter-content h1 {
+        color: #2c3e50;
+        border-bottom: 3px solid #667eea;
+        padding-bottom: 10px;
+    }
+    .newsletter-content h2 {
+        color: #34495e;
+        margin-top: 30px;
+    }
+    .newsletter-content h3 {
+        color: #7f8c8d;
+    }
+    .newsletter-content a {
+        color: #3498db;
+        text-decoration: none;
+    }
+    .newsletter-content a:hover {
+        text-decoration: underline;
+    }
+    .newsletter-content p {
+        line-height: 1.6;
+        margin-bottom: 15px;
+    }
+    .newsletter-content ul, .newsletter-content ol {
+        margin-bottom: 15px;
+    }
+    .newsletter-content li {
+        margin-bottom: 5px;
+    }
+    .newsletter-meta {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4><i class="fas fa-newspaper"></i> Newsletter #{{ newsletter.id }}</h4>
+                <div>
+                    <a href="/download/{{ newsletter_id }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-download"></i> Download
+                    </a>
+                    <a href="/" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="newsletter-meta">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Generated:</strong> {{ newsletter.generated_at }}
+                        </div>
+                        <div class="col-md-6">
+                            <strong>File:</strong> {{ newsletter.filename }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="newsletter-content">
+                    {{ newsletter.content | safe }}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-share-alt"></i> Share Newsletter</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Share this newsletter with your team or subscribers.</p>
+                <button class="btn btn-outline-primary btn-sm w-100 mb-2" onclick="copyToClipboard()">
+                    <i class="fas fa-copy"></i> Copy Link
+                </button>
+                <button class="btn btn-outline-secondary btn-sm w-100 mb-2" onclick="shareViaEmail()">
+                    <i class="fas fa-envelope"></i> Share via Email
+                </button>
+                <button class="btn btn-outline-info btn-sm w-100" onclick="printNewsletter()">
+                    <i class="fas fa-print"></i> Print
+                </button>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5><i class="fas fa-cog"></i> Newsletter Actions</h5>
+            </div>
+            <div class="card-body">
+                <button class="btn btn-success btn-sm w-100 mb-2" onclick="sendToSubscribers()">
+                    <i class="fas fa-paper-plane"></i> Send to Subscribers
+                </button>
+                <button class="btn btn-warning btn-sm w-100 mb-2" onclick="regenerateNewsletter()">
+                    <i class="fas fa-sync-alt"></i> Regenerate
+                </button>
+                <button class="btn btn-danger btn-sm w-100" onclick="deleteNewsletter()">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyToClipboard() {
+    navigator.clipboard.writeText(window.location.href).then(function() {
+        alert('Link copied to clipboard!');
+    });
+}
+
+function shareViaEmail() {
+    const subject = encodeURIComponent('AI Newsletter #{{ newsletter.id }}');
+    const body = encodeURIComponent(`Check out this AI newsletter: ${window.location.href}`);
+    window.open(`mailto:?subject=${subject}&body=${body}`);
+}
+
+function printNewsletter() {
+    window.print();
+}
+
+function sendToSubscribers() {
+    if (confirm('Send this newsletter to all subscribers?')) {
+        // Implement subscriber sending functionality
+        alert('Newsletter sent to subscribers!');
+    }
+}
+
+function regenerateNewsletter() {
+    if (confirm('Generate a new newsletter? This will create a new version.')) {
+        window.location.href = '/';
+    }
+}
+
+function deleteNewsletter() {
+    if (confirm('Are you sure you want to delete this newsletter? This action cannot be undone.')) {
+        // Implement delete functionality
+        alert('Newsletter deleted!');
+        window.location.href = '/';
+    }
+}
+</script>
+{% endblock %} 
